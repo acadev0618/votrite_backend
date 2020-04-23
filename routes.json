@@ -1,0 +1,967 @@
+{
+  "routes": [
+    {
+      "api/status": {
+        "method": "GET",
+        "handler": "GetApiStatus"
+      }
+    },
+
+    {
+      "api/list": {
+        "method": "GET",
+        "handler": "GetApiList"
+      }
+    },
+
+    {
+      "api/user/login": {
+        "method": "POST",
+        "handler": "Read",
+        "args": [
+          {"user_email": "string", "required": true},
+          {"user_password": "string", "required": true, "encrypted": true}
+        ],
+        "data-source": {
+          "schema": "admin",
+          "name": "user",
+          "fields": [
+            "user_id",
+            "display_name",
+            "user_avatar"
+          ]
+        }
+      }
+    },
+
+    {
+      "api/qrc": {
+        "method": "GET",
+        "handler": "GetQrc",
+        "args": [{
+          "url": "string", "required": true
+        }]
+      }
+    },
+
+    {
+      "api/user/email/verify": {
+        "method": "POST",
+        "handler": "VerifyUserEmail",
+        "args": [
+          {"user_email": "string", "required":  true}
+        ]
+      }
+    },
+
+    {
+      "api/user": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"user_id": "string"},
+          {"user_name": "string"},
+          {"user_email": "string"}
+        ],
+        "data-source": {
+          "schema": "admin",
+          "name": "user",
+          "order": [
+            {"user_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/user/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"user_login": "string", "required":  true},
+          {"user_password": "string", "required":  true},
+          {"user_name": "string", "required":  true},
+          {"user_email": "string", "required":  true},
+          {"display_name": "string"},
+          {"user_avatar": "string"}
+        ],
+        "data-source": {
+          "schema": "admin",
+          "name": "user"
+        }
+      }
+    },
+
+    {
+      "api/user/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"user_id": "int", "required":  true},
+          {"user_login": "string"},
+          {"user_password": "string"},
+          {"user_name": "string"},
+          {"user_email": "string"},
+          {"display_name": "string"},
+          {"user_avatar": "string"}
+        ],
+        "data-source": {
+          "schema": "admin",
+          "name": "user"
+        }
+      }
+    },
+
+    {
+      "api/election/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"title": "string", "required": true},
+          {"description": "string"},
+          {"start_date": "timestamp", "required": true},
+          {"end_date": "timestamp", "required": true},
+          {"is_active": "boolean", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "election"
+        }
+      }
+    },
+
+    {
+      "api/election": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"election_id": "int"},
+          {"title": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "election",
+          "order": [
+            {"title": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/election/detail": {
+        "method": "GET",
+        "handler": "Mixin",
+        "args": [
+          {"election_id": "int"},
+          {"title": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "query": "select e.*, count(c.*) as \"cast_count\" from voting.election e\nleft outer join voting.cast_counter c\non e.election_id=c.election_id\ngroup by e.election_id"
+        }
+      }
+    },
+
+    {
+      "api/election/ballot": {
+        "method": "GET",
+        "handler": "Mixin",
+        "args": [
+          {"election_id": "int"},
+          {"title": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "query": "select e.election_id, e.title, e.description, e.start_date, e.end_date, e.is_active, b.ballot_id from voting.election e\nleft outer join voting.ballot b on e.election_id=b.election_id"
+        }
+      }
+    },
+
+    {
+      "api/election/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"title": "string", "required": true},
+          {"description": "string"},
+          {"start_date": "timestamp", "required": true},
+          {"end_date": "timestamp", "required": true},
+          {"is_active": "boolean", "required": true},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "election"
+        }
+      }
+    },
+
+    {
+      "api/election/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"election_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "election"
+        }
+      }
+    },
+
+    {
+      "api/ballot/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"election_id": "int", "required": true},
+          {"ballot_location": "string", "required": true},
+          {"start_date": "timestamp", "required": true},
+          {"end_date": "timestamp", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "ballot"
+        }
+      }
+    },
+
+    {
+      "api/ballot": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"election_id": "int"},
+          {"ballot_id": "int"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "ballot",
+          "order": [
+            {"ballot_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/ballot/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"ballot_location": "string"},
+          {"start_date": "timestamp"},
+          {"end_date": "timestamp"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "ballot"
+        }
+      }
+    },
+
+    {
+      "api/ballot/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"election_id": "int", "required": true},
+          {"ballot_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "ballot"
+        }
+      }
+    },
+
+    {
+      "api/ballot/mixin": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"election_id": "int"},
+          {"ballot_id": "int"}
+        ],
+        "data-source": {
+          "query": "SELECT e.election_id, e.title, b.ballot_id, b.ballot_location FROM voting.election e INNER JOIN ballot b ON e.election_id=b.election_id WHERE e.election_id=$1 AND b.ballot_id=$2"
+        }
+      }
+    },
+
+    {
+      "api/ballot/complete": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"election_id": "int"},
+          {"ballot_id": "int"}
+        ],
+        "data-source": {
+          "query": "select e.election_id, e.title as \"election_title\", e.description as \"election_description\",\n       b.ballot_id, b.ballot_location, b.supported_languages::json,\n       c.contest_id, c.step as \"contest_step\", c.contest_type,\n       r.race_name, r.race_title, r.race_subtitle,\n       p.proposition_id, p.title as \"proposition_title\", p.proposition_name,\np.proposition_text_org, p.proposition_text_new, p.article_text, p.proposition_text_org_title, p.proposition_text_new_title, p.section_text, p.proposition_choice_type,\n      cn.candidate_id, cn.photo, cn.last_name as \"candidate_last_name\", cn.first_name as \"candidate_first_name\"\nfrom voting.election e\ninner join voting.ballot b on e.election_id=b.election_id\ninner join voting.contest c on b.ballot_id=c.ballot_id\nleft outer join voting.race r on c.contest_id=r.contest_id\nleft outer join voting.proposition p on c.contest_id=p.contest_id\nleft outer join voting.race_candidate rc on r.race_id=rc.race_id\nleft outer join voting.candidate cn on rc.candidate_id=cn.candidate_id\nwhere e.election_id=$1 and b.ballot_id=$2 order by c.step"
+        }
+      }
+    },
+
+    {
+      "api/ballot/cast": {
+        "method": "POST",
+        "handler": "CastBallot",
+        "args": [
+          {"session_id": "string", "required": true}
+        ],
+        "data-source": {
+          "schema": "voting"
+        }
+      }
+    },
+
+    {
+      "api/pincode/create": {
+        "method": "POST",
+        "handler": "CreatePinCode",
+        "args": [
+          {"election_id": "int", "required": true},
+          {"ballot_id": "int", "required": true},
+          {"is_active": "boolean"},
+          {"expiration_time": "timestamp"},
+          {"created_at": "timestamp"},
+          {"created_by": "string"},
+          {"pincode_len": "int"},
+          {"voter_id": "int"},
+          {"election_name": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "pincode"
+        }
+      }
+    },
+
+    {
+      "api/pincode": {
+        "method": "GET,POST",
+        "handler": "Read",
+        "args": [
+          {"election_id": "int"},
+          {"ballot_id": "int"},
+          {"pin": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "pincode",
+          "order": [
+            {"election_id": "asc"},
+            {"ballot_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/pincode/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"is_active": "boolean"},
+          {"expiration_time": "timestamp"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"},
+          {"keys": [
+            {"pin": "string", "required":  true}
+          ]}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "pincode"
+        }
+      }
+    },
+
+    {
+      "api/pincode/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"election_id": "int", "required": true},
+          {"ballot_id": "int", "required": true},
+          {"pin": "string", "required": true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "pincode"
+        }
+      }
+    },
+
+    {
+      "api/language/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"language_code": "string", "required": true},
+          {"language_name": "string", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "language"
+        }
+      }
+    },
+
+    {
+      "api/language": {
+        "method": "GET",
+        "handler": "Read",
+        "data-source": {
+          "schema": "voting",
+          "name": "language",
+          "order": [
+            {"language_name": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/language/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"language_code": "string"},
+          {"language_name": "string"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "language"
+        }
+      }
+    },
+
+    {
+      "api/language/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"language_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "language"
+        }
+      }
+    },
+
+    {
+      "api/contest/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"election_id": "int", "required": true},
+          {"ballot_id": "int", "required": true},
+          {"contest_type": "string", "required": true},
+          {"step": "int", "required": true},
+          {"start_date": "timestamp", "required": true},
+          {"end_date": "timestamp", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "contest"
+        }
+      }
+    },
+
+    {
+      "api/contest": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"election_id": "int", "required": true},
+          {"ballot_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "contest",
+          "order": [
+            {"ballot_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/contest/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"contest_type": "string"},
+          {"step": "int"},
+          {"enabled": "bool"},
+          {"start_date": "timestamp"},
+          {"end_date": "timestamp"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "contest"
+        }
+      }
+    },
+
+    {
+      "api/contest/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"contest_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "contest"
+        }
+      }
+    },
+
+    {
+      "api/race/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"contest_id": "int", "required": true},
+          {"race_title": "string"},
+          {"race_subtitle": "string"},
+          {"start_date": "timestamp", "required": true},
+          {"end_date": "timestamp", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "race"
+        }
+      }
+    },
+
+    {
+      "api/race": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"contest_id": "int"},
+          {"race_id": "int"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "race",
+          "order": [
+            {"race_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/race/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"race_title": "string"},
+          {"race_subtitle": "string"},
+          {"start_date": "timestamp"},
+          {"end_date": "timestamp"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "race"
+        }
+      }
+    },
+
+    {
+      "api/race/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"race_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "race"
+        }
+      }
+    },
+
+    {
+      "api/race/candidate": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"race_id": "int"}
+        ],
+        "data-source": {
+          "query": "SELECT c.first_name, c.last_name FROM voting.candidate c INNER JOIN voting.race_candidate rc ON c.candidate_id=rc.candidate_id WHERE rc.race_id=$1"
+        }
+      }
+    },
+
+    {
+      "api/session/new": {
+        "method": "GET",
+        "handler": "NewSession"
+      }
+    },
+
+    {
+      "api/candidate/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"first_name": "string", "required": true},
+          {"last_name": "string", "required": true},
+          {"middle_name": "string"},
+          {"email": "string", "required": true},
+          {"photo": "string"},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "candidate"
+        }
+      }
+    },
+
+    {
+      "api/candidate": {
+        "method": "GET",
+        "handler": "Read",
+        "data-source": {
+          "schema": "voting",
+          "name": "candidate",
+          "order": [
+            {"candidate_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/candidate/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"first_name": "string"},
+          {"last_name": "string"},
+          {"email": "string"},
+          {"photo": "string"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "candidate"
+        }
+      }
+    },
+
+    {
+      "api/candidate/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"candidate_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "candidate"
+        }
+      }
+    },
+
+    {
+      "api/counter/candidate/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"election_id": "int", "required": true},
+          {"ballot_id": "int", "required": true},
+          {"contest_id": "int", "required": true},
+          {"candidate_id": "int", "required": true},
+          {"session_id": "string"},
+          {"cast_value": "string"},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "candidate_counter"
+        }
+      }
+    },
+
+    {
+      "api/counter/candidate": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"election_id": "int", "required":  true},
+          {"ballot_id": "int", "required":  true},
+          {"contest_id": "int"},
+          {"candidate_id": "int", "required":  true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "candidate_counter",
+          "order": [
+            {"candidate_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/counter/cast/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"election_id": "int", "required": true},
+          {"ballot_id": "int", "required": true},
+          {"session_id": "string", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "cast_counter"
+        }
+      }
+    },
+
+    {
+      "api/counter/cast": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"election_id": "int", "required":  true},
+          {"ballot_id": "int", "required":  true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "cast_counter",
+          "order": [
+            {"candidate_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/counter/cast/count": {
+        "method": "GET",
+        "handler": "Mixin",
+        "data-source": {
+          "schema": "voting",
+          "query": "select count(*) as \"cast_count\" from voting.cast_counter"
+        }
+      }
+    },
+
+    {
+      "api/election/results/candidate": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"election_id": "int", "required":  true},
+          {"ballot_id": "int", "required":  true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "query": "select c.candidate_id,\n       c.first_name,\n       c.last_name, c.photo,\n       count(cc.session_id) as \"cast_counter\",\n       sum(cc.cast_value) as \"cast_value\"\nfrom voting.candidate c\ninner join voting.candidate_counter cc on c.candidate_id=cc.candidate_id\nwhere cc.election_id=$1 and cc.ballot_id=$2\ngroup by c.candidate_id, c.first_name, c.last_name\norder by \"cast_value\" desc"
+        }
+      }
+    },
+
+    {
+      "api/election/results/proposition": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"election_id": "int", "required":  true},
+          {"ballot_id": "int", "required":  true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "query": "select p.proposition_id,\n       p.proposition_name,\n       case when pc.cast_value = '' then 'No selection' else pc.cast_value end,\n       count(pc.session_id) as \"cast_counter\"\nfrom voting.proposition p\ninner join voting.proposition_counter pc on p.proposition_id=pc.proposition_id\nwhere pc.election_id=3 and pc.ballot_id=2\ngroup by p.proposition_id, p.section_text, pc.cast_value\norder by p.proposition_id"
+        }
+      }
+    },
+
+    {
+      "api/election/results": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"election_id": "int", "required":  true},
+          {"ballot_id": "int", "required":  true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "query": "select e.election_id, e.title, b.ballot_location, con.contest_type, p.proposition_id, p.proposition_name,\ncase when pc.cast_value = '' then 'Not selected' else pc.cast_value end as \"proposition_cast_value\",\ncase when count(pc.cast_counter) is null then 0 else count(pc.cast_counter) end as \"proposition_cast_counter\",\nr.race_id, r.race_name, r.race_title, r.race_subtitle,\nc.candidate_id, c.candidate_id, c.first_name, c.last_name, c.photo,\ncase when sum(cc.cast_value) is null then 0 else sum(case when con.contest_type = 'FR' then cc.cast_value/100 else cc.cast_value end) end as \"candidate_cast_value\",\ncase when count(cc.cast_counter) is null then 0 else count(cc.cast_counter) end as \"candidate_cast_counter\"\nfrom voting.election e\ninner join voting.ballot b on e.election_id = b.election_id\ninner join voting.contest con on b.ballot_id = con.ballot_id\nleft outer join voting.proposition p on con.contest_id = p.contest_id\nleft outer join voting.proposition_counter pc on p.proposition_id = pc.proposition_id\nleft outer join voting.race r on con.contest_id = r.contest_id\nleft outer join voting.race_candidate rc on r.race_id = rc.race_id\nleft outer join voting.candidate c on rc.candidate_id = c.candidate_id\nleft outer join voting.candidate_counter cc on c.candidate_id = cc.candidate_id\nwhere e.election_id=$1 and b.ballot_id=$2\ngroup by e.election_id, e.title, b.ballot_location, con.contest_type, r.race_id, r.race_name, r.race_title,\nr.race_subtitle, p.proposition_id, p.proposition_name,\npc.cast_value, c.candidate_id, c.candidate_id, c.first_name, c.last_name, c.photo\norder by e.election_id, proposition_cast_counter desc, proposition_cast_value desc, candidate_cast_counter desc, candidate_cast_value desc"
+        }
+      }
+    },
+
+    {
+      "api/election/results/all": {
+        "method": "GET",
+        "handler": "Mixin",
+        "data-source": {
+          "schema": "voting",
+          "query": "select e.election_id, e.title, b.ballot_location, con.contest_type, p.proposition_id, p.proposition_name,\ncase when pc.cast_value = '' then 'Not selected' else pc.cast_value end as \"proposition_cast_value\",\ncase when count(pc.cast_counter) is null then 0 else count(pc.cast_counter) end as \"proposition_cast_counter\",\nr.race_id, r.race_name, r.race_title, r.race_subtitle,\nc.candidate_id, c.first_name, c.last_name, c.photo,\ncase when sum(cc.cast_value) is null then 0 else sum(case when con.contest_type = 'FR' then cc.cast_value/100 else cc.cast_value end) end as \"candidate_cast_value\",\ncase when count(cc.cast_counter) is null then 0 else count(cc.cast_counter) end as \"candidate_cast_counter\"\nfrom voting.election e\ninner join voting.ballot b on e.election_id = b.election_id\ninner join voting.contest con on b.ballot_id = con.ballot_id\nleft outer join voting.proposition p on con.contest_id = p.contest_id\nleft outer join voting.proposition_counter pc on p.proposition_id = pc.proposition_id\nleft outer join voting.race r on con.contest_id = r.contest_id\nleft outer join voting.race_candidate rc on r.race_id = rc.race_id\nleft outer join voting.candidate c on rc.candidate_id = c.candidate_id\nleft outer join voting.candidate_counter cc on c.candidate_id = cc.candidate_id\ngroup by e.election_id, e.title, b.ballot_location, con.contest_type, r.race_id, r.race_name, r.race_title,\nr.race_subtitle, p.proposition_id, p.proposition_name,\npc.cast_value, c.candidate_id, c.first_name, c.last_name, c.photo\norder by e.election_id, proposition_cast_counter desc, proposition_cast_value desc, candidate_cast_counter desc, candidate_cast_value desc"
+        }
+      }
+    },
+
+    {
+      "api/proposition/test": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"contest_id": "int", "required": true}
+        ],
+        "data-source": {
+          "name": "proposition",
+          "dependencies": [
+            {
+              "data-source": {
+                "name": "contest_proposition",
+                "key": "proposition_id"
+              },
+              "dependencies": [
+                {
+                  "data-source": {
+                    "name": "contest",
+                    "key": "contest_id"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "api/voter/create": {
+        "method": "POST",
+        "handler": "CreateVoter",
+        "args": [
+          {"voter_email": "string", "required": true},
+          {"voter_phone": "string", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "voter"
+        }
+      }
+    },
+
+    {
+      "api/voter": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"voter_email": "string"},
+          {"voter_phone": "string"}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "voter",
+          "order": [
+            {"voter_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/voter/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"voter_email": "string"},
+          {"voter_phone": "string"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"},
+          {"keys": [
+            {"voter_id": "int", "required":  true}
+          ]}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "voter"
+        }
+      }
+    },
+
+    {
+      "api/voter/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"voter_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "voting",
+          "name": "voter"
+        }
+      }
+    },
+
+    {
+      "api/translate": {
+        "method": "POST",
+        "handler": "TranslateText",
+        "args": [
+          {"text": "string", "required": true},
+          {"targetLang": "string", "required": true}
+        ]
+      }
+    },
+
+    {
+      "api/translate/screen": {
+        "method": "POST",
+        "handler": "TranslateScreen"
+      }
+    },
+
+    {
+      "api/translate/language/supported": {
+        "method": "GET",
+        "handler": "TranslationSupportedLanguages"
+      }
+    }
+
+  ]
+}
