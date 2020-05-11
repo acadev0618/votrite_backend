@@ -97,13 +97,15 @@
         "method": "POST",
         "handler": "Update",
         "args": [
-          {"user_id": "int", "required":  true},
           {"user_login": "string"},
           {"user_password": "string"},
           {"user_name": "string"},
           {"user_email": "string"},
           {"display_name": "string"},
-          {"user_avatar": "string"}
+          {"user_avatar": "string"},
+          {"keys": [
+            {"user_id": "int", "required":  true}
+          ]}
         ],
         "data-source": {
           "schema": "admin",
@@ -126,7 +128,7 @@
           {"created_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "election"
         }
       }
@@ -141,7 +143,7 @@
           {"title": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "election",
           "order": [
             {"title": "asc"}
@@ -159,8 +161,8 @@
           {"title": "string"}
         ],
         "data-source": {
-          "schema": "voting",
-          "query": "select e.*, count(c.*) as \"cast_count\" from voting.election e\nleft outer join voting.cast_counter c\non e.election_id=c.election_id\ngroup by e.election_id"
+          "schema": "votrite",
+          "query": "select e.*, count(c.*) as \"cast_count\" from voting.election e\nleft outer join voting.cast_counter c\non e.election_id=c.election_id %s\n group by e.election_id"
         }
       }
     },
@@ -174,7 +176,7 @@
           {"title": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "query": "select e.election_id, e.title, e.description, e.start_date, e.end_date, e.is_active, b.ballot_id from voting.election e\nleft outer join voting.ballot b on e.election_id=b.election_id"
         }
       }
@@ -191,10 +193,13 @@
           {"end_date": "timestamp", "required": true},
           {"is_active": "boolean", "required": true},
           {"modified_at": "timestamp"},
-          {"modified_by": "string"}
+          {"modified_by": "string"},
+          {"keys": [
+            {"election_id": "int", "required":  true}
+          ]}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "election"
         }
       }
@@ -208,7 +213,7 @@
           {"election_id": "int", "required": true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "election"
         }
       }
@@ -227,7 +232,7 @@
           {"created_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "ballot"
         }
       }
@@ -242,7 +247,7 @@
           {"ballot_id": "int"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "ballot",
           "order": [
             {"ballot_id": "asc"}
@@ -260,10 +265,13 @@
           {"start_date": "timestamp"},
           {"end_date": "timestamp"},
           {"modified_at": "timestamp"},
-          {"modified_by": "string"}
+          {"modified_by": "string"},
+          {"keys": [
+            {"ballot_id": "int", "required":  true}
+          ]}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "ballot"
         }
       }
@@ -278,7 +286,7 @@
           {"ballot_id": "int", "required": true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "ballot"
         }
       }
@@ -341,7 +349,7 @@
           {"election_name": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "pincode"
         }
       }
@@ -357,7 +365,7 @@
           {"pin": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "pincode",
           "order": [
             {"election_id": "asc"},
@@ -381,7 +389,7 @@
           ]}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "pincode"
         }
       }
@@ -397,7 +405,7 @@
           {"pin": "string", "required": true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "pincode"
         }
       }
@@ -414,7 +422,7 @@
           {"created_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "language"
         }
       }
@@ -425,7 +433,7 @@
         "method": "GET",
         "handler": "Read",
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "language",
           "order": [
             {"language_name": "asc"}
@@ -445,7 +453,7 @@
           {"modified_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "language"
         }
       }
@@ -459,7 +467,7 @@
           {"language_id": "int", "required": true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "language"
         }
       }
@@ -470,17 +478,14 @@
         "method": "POST",
         "handler": "Create",
         "args": [
-          {"election_id": "int", "required": true},
           {"ballot_id": "int", "required": true},
           {"contest_type": "string", "required": true},
           {"step": "int", "required": true},
-          {"start_date": "timestamp", "required": true},
-          {"end_date": "timestamp", "required": true},
           {"created_at": "timestamp"},
           {"created_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "contest"
         }
       }
@@ -491,11 +496,10 @@
         "method": "GET",
         "handler": "Read",
         "args": [
-          {"election_id": "int", "required": true},
           {"ballot_id": "int", "required": true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "contest",
           "order": [
             {"ballot_id": "asc"}
@@ -512,13 +516,11 @@
           {"contest_type": "string"},
           {"step": "int"},
           {"enabled": "bool"},
-          {"start_date": "timestamp"},
-          {"end_date": "timestamp"},
           {"modified_at": "timestamp"},
           {"modified_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "contest"
         }
       }
@@ -532,7 +534,7 @@
           {"contest_id": "int", "required": true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "contest"
         }
       }
@@ -544,15 +546,16 @@
         "handler": "Create",
         "args": [
           {"contest_id": "int", "required": true},
+          {"race_name": "string"},
           {"race_title": "string"},
           {"race_subtitle": "string"},
-          {"start_date": "timestamp", "required": true},
-          {"end_date": "timestamp", "required": true},
+          {"min_num_of_votes":"int"},
+          {"max_num_of_votes":"int"},
           {"created_at": "timestamp"},
           {"created_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "race"
         }
       }
@@ -567,7 +570,7 @@
           {"race_id": "int"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "race",
           "order": [
             {"race_id": "asc"}
@@ -581,15 +584,16 @@
         "method": "POST",
         "handler": "Update",
         "args": [
+          {"race_name": "string"},
           {"race_title": "string"},
+          {"min_num_of_votes":"int"},
+          {"max_num_of_votes":"int"},
           {"race_subtitle": "string"},
-          {"start_date": "timestamp"},
-          {"end_date": "timestamp"},
           {"modified_at": "timestamp"},
           {"modified_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "race"
         }
       }
@@ -603,7 +607,7 @@
           {"race_id": "int", "required": true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "race"
         }
       }
@@ -643,7 +647,7 @@
           {"created_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "candidate"
         }
       }
@@ -654,7 +658,7 @@
         "method": "GET",
         "handler": "Read",
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "candidate",
           "order": [
             {"candidate_id": "asc"}
@@ -676,7 +680,7 @@
           {"modified_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "candidate"
         }
       }
@@ -690,7 +694,7 @@
           {"candidate_id": "int", "required": true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "candidate"
         }
       }
@@ -711,7 +715,7 @@
           {"created_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "candidate_counter"
         }
       }
@@ -728,7 +732,7 @@
           {"candidate_id": "int", "required":  true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "candidate_counter",
           "order": [
             {"candidate_id": "asc"}
@@ -749,7 +753,7 @@
           {"created_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "cast_counter"
         }
       }
@@ -764,10 +768,10 @@
           {"ballot_id": "int", "required":  true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "cast_counter",
           "order": [
-            {"candidate_id": "asc"}
+            {"election_id": "asc"}
           ]
         }
       }
@@ -778,7 +782,7 @@
         "method": "GET",
         "handler": "Mixin",
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "query": "select count(*) as \"cast_count\" from voting.cast_counter"
         }
       }
@@ -793,7 +797,7 @@
           {"ballot_id": "int", "required":  true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "query": "select c.candidate_id,\n       c.first_name,\n       c.last_name, c.photo,\n       count(cc.session_id) as \"cast_counter\",\n       sum(cc.cast_value) as \"cast_value\"\nfrom voting.candidate c\ninner join voting.candidate_counter cc on c.candidate_id=cc.candidate_id\nwhere cc.election_id=$1 and cc.ballot_id=$2\ngroup by c.candidate_id, c.first_name, c.last_name\norder by \"cast_value\" desc"
         }
       }
@@ -808,7 +812,7 @@
           {"ballot_id": "int", "required":  true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "query": "select p.proposition_id,\n       p.proposition_name,\n       case when pc.cast_value = '' then 'No selection' else pc.cast_value end,\n       count(pc.session_id) as \"cast_counter\"\nfrom voting.proposition p\ninner join voting.proposition_counter pc on p.proposition_id=pc.proposition_id\nwhere pc.election_id=3 and pc.ballot_id=2\ngroup by p.proposition_id, p.section_text, pc.cast_value\norder by p.proposition_id"
         }
       }
@@ -823,7 +827,7 @@
           {"ballot_id": "int", "required":  true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "query": "select e.election_id, e.title, b.ballot_location, con.contest_type, p.proposition_id, p.proposition_name,\ncase when pc.cast_value = '' then 'Not selected' else pc.cast_value end as \"proposition_cast_value\",\ncase when count(pc.cast_counter) is null then 0 else count(pc.cast_counter) end as \"proposition_cast_counter\",\nr.race_id, r.race_name, r.race_title, r.race_subtitle,\nc.candidate_id, c.candidate_id, c.first_name, c.last_name, c.photo,\ncase when sum(cc.cast_value) is null then 0 else sum(case when con.contest_type = 'FR' then cc.cast_value/100 else cc.cast_value end) end as \"candidate_cast_value\",\ncase when count(cc.cast_counter) is null then 0 else count(cc.cast_counter) end as \"candidate_cast_counter\"\nfrom voting.election e\ninner join voting.ballot b on e.election_id = b.election_id\ninner join voting.contest con on b.ballot_id = con.ballot_id\nleft outer join voting.proposition p on con.contest_id = p.contest_id\nleft outer join voting.proposition_counter pc on p.proposition_id = pc.proposition_id\nleft outer join voting.race r on con.contest_id = r.contest_id\nleft outer join voting.race_candidate rc on r.race_id = rc.race_id\nleft outer join voting.candidate c on rc.candidate_id = c.candidate_id\nleft outer join voting.candidate_counter cc on c.candidate_id = cc.candidate_id\nwhere e.election_id=$1 and b.ballot_id=$2\ngroup by e.election_id, e.title, b.ballot_location, con.contest_type, r.race_id, r.race_name, r.race_title,\nr.race_subtitle, p.proposition_id, p.proposition_name,\npc.cast_value, c.candidate_id, c.candidate_id, c.first_name, c.last_name, c.photo\norder by e.election_id, proposition_cast_counter desc, proposition_cast_value desc, candidate_cast_counter desc, candidate_cast_value desc"
         }
       }
@@ -834,7 +838,7 @@
         "method": "GET",
         "handler": "Mixin",
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "query": "select e.election_id, e.title, b.ballot_location, con.contest_type, p.proposition_id, p.proposition_name,\ncase when pc.cast_value = '' then 'Not selected' else pc.cast_value end as \"proposition_cast_value\",\ncase when count(pc.cast_counter) is null then 0 else count(pc.cast_counter) end as \"proposition_cast_counter\",\nr.race_id, r.race_name, r.race_title, r.race_subtitle,\nc.candidate_id, c.first_name, c.last_name, c.photo,\ncase when sum(cc.cast_value) is null then 0 else sum(case when con.contest_type = 'FR' then cc.cast_value/100 else cc.cast_value end) end as \"candidate_cast_value\",\ncase when count(cc.cast_counter) is null then 0 else count(cc.cast_counter) end as \"candidate_cast_counter\"\nfrom voting.election e\ninner join voting.ballot b on e.election_id = b.election_id\ninner join voting.contest con on b.ballot_id = con.ballot_id\nleft outer join voting.proposition p on con.contest_id = p.contest_id\nleft outer join voting.proposition_counter pc on p.proposition_id = pc.proposition_id\nleft outer join voting.race r on con.contest_id = r.contest_id\nleft outer join voting.race_candidate rc on r.race_id = rc.race_id\nleft outer join voting.candidate c on rc.candidate_id = c.candidate_id\nleft outer join voting.candidate_counter cc on c.candidate_id = cc.candidate_id\ngroup by e.election_id, e.title, b.ballot_location, con.contest_type, r.race_id, r.race_name, r.race_title,\nr.race_subtitle, p.proposition_id, p.proposition_name,\npc.cast_value, c.candidate_id, c.first_name, c.last_name, c.photo\norder by e.election_id, proposition_cast_counter desc, proposition_cast_value desc, candidate_cast_counter desc, candidate_cast_value desc"
         }
       }
@@ -880,7 +884,7 @@
           {"created_by": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "voter"
         }
       }
@@ -895,7 +899,7 @@
           {"voter_phone": "string"}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "voter",
           "order": [
             {"voter_id": "asc"}
@@ -918,7 +922,7 @@
           ]}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "voter"
         }
       }
@@ -932,7 +936,7 @@
           {"voter_id": "int", "required": true}
         ],
         "data-source": {
-          "schema": "voting",
+          "schema": "votrite",
           "name": "voter"
         }
       }

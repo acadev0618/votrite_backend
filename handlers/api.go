@@ -1,13 +1,14 @@
 package handlers
 
 import (
-	"../managers/database"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"../managers/database"
 )
 
 func (t *MethodInterface) Read(w http.ResponseWriter, args map[string]interface{}) (result string, err error) {

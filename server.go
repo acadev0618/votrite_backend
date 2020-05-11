@@ -1,13 +1,14 @@
 package main
 
 import (
-	"./managers/database"
-	"./managers/network"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
+
+	"./managers/database"
+	"./managers/network"
 )
 
 var (
@@ -38,7 +39,14 @@ func checkEnv() {
 }
 
 func main() {
-	checkEnv()
+	//checkEnv()
+	os.Setenv("VR_API_HOST", "localhost")
+	os.Setenv("VR_API_PORT", "9191")
+	os.Setenv("VR_DB_HOST", "localhost")
+	os.Setenv("VR_DB_PORT", "5432")
+	os.Setenv("VR_DB_USR", "postgres")
+	os.Setenv("VR_DB_PWD", "postgres")
+	os.Setenv("VR_DB_NAME", "votrite")
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/", fs)

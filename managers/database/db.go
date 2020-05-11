@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	_ "github.com/lib/pq"
 	"log"
 	"strings"
+
+	_ "github.com/lib/pq"
 )
 
 type DataSource struct {
@@ -92,7 +93,7 @@ func Read(schema string, dataSource string, columns []string, order string, args
 						switch val.(type) {
 						case string:
 							if strings.Contains(val.(string), "encrypted:") {
-								whereClause = fmt.Sprintf("WHERE %s=%s.crypt($%d, %s)", key, schema, i, key)
+								whereClause = fmt.Sprintf("WHERE %s=crypt($%d, %s)", key, i, key)
 								val = val.(string)[10:]
 							} else {
 								whereClause = fmt.Sprintf("WHERE %s=$%d", key, i)
@@ -104,7 +105,7 @@ func Read(schema string, dataSource string, columns []string, order string, args
 						switch val.(type) {
 						case string:
 							if strings.Contains(val.(string), "encrypted:") {
-								whereClause += fmt.Sprintf(" AND %s=%s.crypt($%d, %s)", key, schema, i, key)
+								whereClause += fmt.Sprintf(" AND %s=crypt($%d, %s)", key, i, key)
 								val = val.(string)[10:]
 							} else {
 								whereClause += fmt.Sprintf(" AND %s=$%d", key, i)
@@ -251,9 +252,18 @@ func Create(schema string, dataSource string, args ...interface{}) (lastInsertId
 				if columns == "" {
 					columns = fmt.Sprintf("%s", key)
 					vArgs = fmt.Sprintf("$%d", i)
+					if key == "user_password" {
+						vArgs = fmt.Sprintf("crypt($%d, gen_salt('bf'))", i)
+					}
 				} else {
 					columns += fmt.Sprintf(" ,%s", key)
-					vArgs += fmt.Sprintf(", $%d", i)
+					switch key {
+					case "user_password":
+						vArgs += fmt.Sprintf(", crypt($%d, gen_salt('bf'))", i)
+						break
+					default:
+						vArgs += fmt.Sprintf(", $%d", i)
+					}
 				}
 				qArgs[i-1] = val
 				i++
@@ -266,6 +276,7 @@ func Create(schema string, dataSource string, args ...interface{}) (lastInsertId
 
 	query := fmt.Sprintf("INSERT INTO %s.%s (%s) VALUES (%s) RETURNING %s",
 		schema, dataSource, columns, vArgs, rowId)
+	log.Println(query, qArgs)
 
 	if err = db.QueryRow(query, qArgs...).Scan(&lastInsertId); err != nil {
 		if er := db.Close(); er != nil {
@@ -345,6 +356,7 @@ func Update(schema string, dataSource string, args ...interface{}) (rowsAffected
 		}
 		return
 	}
+	log.Println(query, qArgs)
 
 	res, err := stmt.Exec(qArgs...)
 
@@ -467,7 +479,6 @@ func Mixin(query string, args ...interface{}) (result map[string][]map[string]in
 
 	var rows *sql.Rows
 	log.Println(query)
-	log.Println(args)
 	rows, err = db.Query(query, qArgs...)
 
 	if err != nil {
