@@ -78,11 +78,10 @@
         "method": "POST",
         "handler": "Create",
         "args": [
-          {"user_login": "string", "required":  true},
-          {"user_password": "string", "required":  true},
           {"user_name": "string", "required":  true},
           {"user_email": "string", "required":  true},
           {"display_name": "string"},
+          {"user_password": "string", "required":  true, "encrypted": true},
           {"user_avatar": "string"}
         ],
         "data-source": {
@@ -97,8 +96,7 @@
         "method": "POST",
         "handler": "Update",
         "args": [
-          {"user_login": "string"},
-          {"user_password": "string"},
+          {"user_password": "string", "encrypted": true},
           {"user_name": "string"},
           {"user_email": "string"},
           {"display_name": "string"},
@@ -115,106 +113,33 @@
     },
 
     {
-      "api/election/create": {
-        "method": "POST",
-        "handler": "Create",
-        "args": [
-          {"title": "string", "required": true},
-          {"description": "string"},
-          {"start_date": "timestamp", "required": true},
-          {"end_date": "timestamp", "required": true},
-          {"is_active": "boolean", "required": true},
-          {"created_at": "timestamp"},
-          {"created_by": "string"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "election"
-        }
-      }
-    },
-
-    {
-      "api/election": {
-        "method": "GET",
-        "handler": "Read",
-        "args": [
-          {"election_id": "int"},
-          {"title": "string"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "election",
-          "order": [
-            {"title": "asc"}
-          ]
-        }
-      }
-    },
-
-    {
-      "api/election/detail": {
-        "method": "GET",
-        "handler": "Mixin",
-        "args": [
-          {"election_id": "int"},
-          {"title": "string"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "query": "select e.*, count(c.*) as \"cast_count\" from voting.election e\nleft outer join voting.cast_counter c\non e.election_id=c.election_id %s\n group by e.election_id"
-        }
-      }
-    },
-
-    {
-      "api/election/ballot": {
-        "method": "GET",
-        "handler": "Mixin",
-        "args": [
-          {"election_id": "int"},
-          {"title": "string"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "query": "select e.election_id, e.title, e.description, e.start_date, e.end_date, e.is_active, b.ballot_id from voting.election e\nleft outer join voting.ballot b on e.election_id=b.election_id"
-        }
-      }
-    },
-
-    {
-      "api/election/update": {
-        "method": "POST",
-        "handler": "Update",
-        "args": [
-          {"title": "string", "required": true},
-          {"description": "string"},
-          {"start_date": "timestamp", "required": true},
-          {"end_date": "timestamp", "required": true},
-          {"is_active": "boolean", "required": true},
-          {"modified_at": "timestamp"},
-          {"modified_by": "string"},
-          {"keys": [
-            {"election_id": "int", "required":  true}
-          ]}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "election"
-        }
-      }
-    },
-
-    {
-      "api/election/delete": {
+      "api/user/delete": {
         "method": "POST",
         "handler": "Delete",
         "args": [
-          {"election_id": "int", "required": true}
+          {"user_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "admin",
+          "name": "user"
+        }
+      }
+    },
+
+    {
+      "api/ballot": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"ballot_id": "int"},
+          {"election": "string"}
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "election"
+          "name": "ballot",
+          "order": [
+            {"ballot_id": "asc"}
+          ]
         }
       }
     },
@@ -224,8 +149,10 @@
         "method": "POST",
         "handler": "Create",
         "args": [
-          {"election_id": "int", "required": true},
-          {"ballot_location": "string", "required": true},
+          {"client": "string", "required": true},
+          {"election": "string", "required": true},
+          {"address": "string", "required": true},
+          {"board": "string"},
           {"start_date": "timestamp", "required": true},
           {"end_date": "timestamp", "required": true},
           {"created_at": "timestamp"},
@@ -239,31 +166,16 @@
     },
 
     {
-      "api/ballot": {
-        "method": "GET",
-        "handler": "Read",
-        "args": [
-          {"election_id": "int"},
-          {"ballot_id": "int"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "ballot",
-          "order": [
-            {"ballot_id": "asc"}
-          ]
-        }
-      }
-    },
-
-    {
       "api/ballot/update": {
         "method": "POST",
         "handler": "Update",
         "args": [
-          {"ballot_location": "string"},
-          {"start_date": "timestamp"},
-          {"end_date": "timestamp"},
+          {"client": "string", "required": true},
+          {"election": "string", "required": true},
+          {"address": "string", "required": true},
+          {"board": "string"},
+          {"start_date": "timestamp", "required": true},
+          {"end_date": "timestamp", "required": true},
           {"modified_at": "timestamp"},
           {"modified_by": "string"},
           {"keys": [
@@ -280,10 +192,12 @@
     {
       "api/ballot/delete": {
         "method": "POST",
-        "handler": "Delete",
+        "handler": "Update",
         "args": [
-          {"election_id": "int", "required": true},
-          {"ballot_id": "int", "required": true}
+          {"is_delete": "boolean", "required": true},
+          {"keys": [
+            {"ballot_id": "int", "required":  true}
+          ]}
         ],
         "data-source": {
           "schema": "votrite",
@@ -292,61 +206,117 @@
       }
     },
 
+    
     {
-      "api/ballot/mixin": {
-        "method": "POST",
-        "handler": "Mixin",
+      "api/race": {
+        "method": "GET",
+        "handler": "Read",
         "args": [
-          {"election_id": "int"},
-          {"ballot_id": "int"}
+          {"ballot_id": "int"},
+          {"race_id": "int"}
         ],
         "data-source": {
-          "query": "SELECT e.election_id, e.title, b.ballot_id, b.ballot_location FROM voting.election e INNER JOIN ballot b ON e.election_id=b.election_id WHERE e.election_id=$1 AND b.ballot_id=$2"
+          "schema": "votrite",
+          "name": "race",
+          "order": [
+            {"race_id": "asc"}
+          ]
         }
       }
     },
 
     {
-      "api/ballot/complete": {
+      "api/race/create": {
         "method": "POST",
-        "handler": "Mixin",
+        "handler": "Create",
         "args": [
-          {"election_id": "int"},
-          {"ballot_id": "int"}
+          {"ballot_id": "int", "required": true},
+          {"race_title": "string", "required": true},
+          {"race_voted_position": "string"},
+          {"race_name": "string"},
+          {"min_num_of_votes": "int"},
+          {"max_num_of_votes": "int"},
+          {"max_num_of_write_ins":"int"},
+          {"race_type":"string"},
+          {"race_lang_id":"int"},
+          {"race_location_id":"int"},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
         ],
         "data-source": {
-          "query": "select e.election_id, e.title as \"election_title\", e.description as \"election_description\",\n       b.ballot_id, b.ballot_location, b.supported_languages::json,\n       c.contest_id, c.step as \"contest_step\", c.contest_type,\n       r.race_name, r.race_title, r.race_subtitle,\n       p.proposition_id, p.title as \"proposition_title\", p.proposition_name,\np.proposition_text_org, p.proposition_text_new, p.article_text, p.proposition_text_org_title, p.proposition_text_new_title, p.section_text, p.proposition_choice_type,\n      cn.candidate_id, cn.photo, cn.last_name as \"candidate_last_name\", cn.first_name as \"candidate_first_name\"\nfrom voting.election e\ninner join voting.ballot b on e.election_id=b.election_id\ninner join voting.contest c on b.ballot_id=c.ballot_id\nleft outer join voting.race r on c.contest_id=r.contest_id\nleft outer join voting.proposition p on c.contest_id=p.contest_id\nleft outer join voting.race_candidate rc on r.race_id=rc.race_id\nleft outer join voting.candidate cn on rc.candidate_id=cn.candidate_id\nwhere e.election_id=$1 and b.ballot_id=$2 order by c.step"
+          "schema": "votrite",
+          "name": "race"
         }
       }
     },
 
     {
-      "api/ballot/cast": {
+      "api/race/update": {
         "method": "POST",
-        "handler": "CastBallot",
+        "handler": "Update",
         "args": [
-          {"session_id": "string", "required": true}
+          {"race_title": "string"},
+          {"race_voted_position": "string"},
+          {"race_name": "string"},
+          {"min_num_of_votes": "int"},
+          {"max_num_of_votes": "int"},
+          {"max_num_of_write_ins":"int"},
+          {"race_type":"string"},
+          {"race_lang_id":"int"},
+          {"race_location_id":"int"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
         ],
         "data-source": {
-          "schema": "voting"
+          "schema": "votrite",
+          "name": "race"
         }
       }
     },
 
+    {
+      "api/race/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"race_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "race"
+        }
+      }
+    },
+
+    {
+      "api/race/candidate": {
+        "method": "POST",
+        "handler": "Read",
+        "args": [
+          {"race_id": "int"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "race_candidate_view",
+          "order": [
+            {"candidate_id": "asc"}
+          ]
+        }
+      }
+    },
+    
     {
       "api/pincode/create": {
         "method": "POST",
         "handler": "CreatePinCode",
         "args": [
-          {"election_id": "int", "required": true},
           {"ballot_id": "int", "required": true},
           {"is_active": "boolean"},
           {"expiration_time": "timestamp"},
-          {"created_at": "timestamp"},
-          {"created_by": "string"},
           {"pincode_len": "int"},
           {"voter_id": "int"},
-          {"election_name": "string"}
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
         ],
         "data-source": {
           "schema": "votrite",
@@ -360,7 +330,6 @@
         "method": "GET,POST",
         "handler": "Read",
         "args": [
-          {"election_id": "int"},
           {"ballot_id": "int"},
           {"pin": "string"}
         ],
@@ -368,7 +337,6 @@
           "schema": "votrite",
           "name": "pincode",
           "order": [
-            {"election_id": "asc"},
             {"ballot_id": "asc"}
           ]
         }
@@ -400,7 +368,6 @@
         "method": "POST",
         "handler": "Delete",
         "args": [
-          {"election_id": "int", "required": true},
           {"ballot_id": "int", "required": true},
           {"pin": "string", "required": true}
         ],
@@ -458,7 +425,7 @@
         }
       }
     },
-
+    
     {
       "api/language/delete": {
         "method": "POST",
@@ -474,175 +441,24 @@
     },
 
     {
-      "api/contest/create": {
-        "method": "POST",
-        "handler": "Create",
-        "args": [
-          {"ballot_id": "int", "required": true},
-          {"contest_type": "string", "required": true},
-          {"step": "int", "required": true},
-          {"created_at": "timestamp"},
-          {"created_by": "string"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "contest"
-        }
-      }
-    },
-
-    {
-      "api/contest": {
-        "method": "GET",
-        "handler": "Read",
-        "args": [
-          {"ballot_id": "int", "required": true}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "contest",
-          "order": [
-            {"ballot_id": "asc"}
-          ]
-        }
-      }
-    },
-
-    {
-      "api/contest/update": {
-        "method": "POST",
-        "handler": "Update",
-        "args": [
-          {"contest_type": "string"},
-          {"step": "int"},
-          {"enabled": "bool"},
-          {"modified_at": "timestamp"},
-          {"modified_by": "string"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "contest"
-        }
-      }
-    },
-
-    {
-      "api/contest/delete": {
-        "method": "POST",
-        "handler": "Delete",
-        "args": [
-          {"contest_id": "int", "required": true}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "contest"
-        }
-      }
-    },
-
-    {
-      "api/race/create": {
-        "method": "POST",
-        "handler": "Create",
-        "args": [
-          {"contest_id": "int", "required": true},
-          {"race_name": "string"},
-          {"race_title": "string"},
-          {"race_subtitle": "string"},
-          {"min_num_of_votes":"int"},
-          {"max_num_of_votes":"int"},
-          {"created_at": "timestamp"},
-          {"created_by": "string"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "race"
-        }
-      }
-    },
-
-    {
-      "api/race": {
-        "method": "GET",
-        "handler": "Read",
-        "args": [
-          {"contest_id": "int"},
-          {"race_id": "int"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "race",
-          "order": [
-            {"race_id": "asc"}
-          ]
-        }
-      }
-    },
-
-    {
-      "api/race/update": {
-        "method": "POST",
-        "handler": "Update",
-        "args": [
-          {"race_name": "string"},
-          {"race_title": "string"},
-          {"min_num_of_votes":"int"},
-          {"max_num_of_votes":"int"},
-          {"race_subtitle": "string"},
-          {"modified_at": "timestamp"},
-          {"modified_by": "string"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "race"
-        }
-      }
-    },
-
-    {
-      "api/race/delete": {
-        "method": "POST",
-        "handler": "Delete",
-        "args": [
-          {"race_id": "int", "required": true}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "race"
-        }
-      }
-    },
-
-    {
-      "api/race/candidate": {
-        "method": "POST",
-        "handler": "Mixin",
-        "args": [
-          {"race_id": "int"}
-        ],
-        "data-source": {
-          "query": "SELECT c.first_name, c.last_name FROM voting.candidate c INNER JOIN voting.race_candidate rc ON c.candidate_id=rc.candidate_id WHERE rc.race_id=$1"
-        }
-      }
-    },
-
-    {
       "api/session/new": {
         "method": "GET",
         "handler": "NewSession"
       }
     },
 
+
     {
       "api/candidate/create": {
         "method": "POST",
         "handler": "Create",
         "args": [
-          {"first_name": "string", "required": true},
-          {"last_name": "string", "required": true},
-          {"middle_name": "string"},
-          {"email": "string", "required": true},
+          {"race_id": "int", "required": true},
+          {"candidate_name": "string", "required": true},
+          {"email": "string"},
           {"photo": "string"},
+          {"party_id": "int"},
+          {"lang_id": "int"},
           {"created_at": "timestamp"},
           {"created_by": "string"}
         ],
@@ -672,10 +488,11 @@
         "method": "POST",
         "handler": "Update",
         "args": [
-          {"first_name": "string"},
-          {"last_name": "string"},
+          {"candidate_name": "string", "required": true},
           {"email": "string"},
           {"photo": "string"},
+          {"party_id": "int"},
+          {"lang_id": "int"},
           {"modified_at": "timestamp"},
           {"modified_by": "string"}
         ],
@@ -699,17 +516,130 @@
         }
       }
     },
+    
+    {
+      "api/voter/createPin": {
+        "method": "POST",
+        "handler": "CreateVoter",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"voter_email": "string", "required": true},
+          {"voter_phone": "string", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "voter"
+        }
+      }
+    },
+
+    {
+      "api/voter/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"voter_email": "string", "required": true},
+          {"voter_phone": "string", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "voter"
+        }
+      }
+    },
+
+    {
+      "api/voter": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"voter_email": "string"},
+          {"voter_phone": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "voter",
+          "order": [
+            {"voter_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/voter/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"voter_email": "string"},
+          {"voter_phone": "string"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"},
+          {"keys": [
+            {"voter_id": "int", "required":  true}
+          ]}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "voter"
+        }
+      }
+    },
+
+    {
+      "api/voter/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"voter_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "voter"
+        }
+      }
+    },
+
+    {
+      "api/translate": {
+        "method": "POST",
+        "handler": "TranslateText",
+        "args": [
+          {"text": "string", "required": true},
+          {"targetLang": "string", "required": true}
+        ]
+      }
+    },
+
+    {
+      "api/translate/screen": {
+        "method": "POST",
+        "handler": "TranslateScreen"
+      }
+    },
+
+    {
+      "api/translate/language/supported": {
+        "method": "GET",
+        "handler": "TranslationSupportedLanguages"
+      }
+    },
+
+
+
 
     {
       "api/counter/candidate/create": {
         "method": "POST",
         "handler": "Create",
         "args": [
-          {"election_id": "int", "required": true},
           {"ballot_id": "int", "required": true},
-          {"contest_id": "int", "required": true},
+          {"race_id": "int", "required": true},
           {"candidate_id": "int", "required": true},
-          {"session_id": "string"},
           {"cast_value": "string"},
           {"created_at": "timestamp"},
           {"created_by": "string"}
@@ -726,9 +656,8 @@
         "method": "GET",
         "handler": "Read",
         "args": [
-          {"election_id": "int", "required":  true},
           {"ballot_id": "int", "required":  true},
-          {"contest_id": "int"},
+          {"race_id": "int"},
           {"candidate_id": "int", "required":  true}
         ],
         "data-source": {
@@ -870,100 +799,6 @@
             }
           ]
         }
-      }
-    },
-
-    {
-      "api/voter/create": {
-        "method": "POST",
-        "handler": "CreateVoter",
-        "args": [
-          {"voter_email": "string", "required": true},
-          {"voter_phone": "string", "required": true},
-          {"created_at": "timestamp"},
-          {"created_by": "string"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "voter"
-        }
-      }
-    },
-
-    {
-      "api/voter": {
-        "method": "GET",
-        "handler": "Read",
-        "args": [
-          {"voter_email": "string"},
-          {"voter_phone": "string"}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "voter",
-          "order": [
-            {"voter_id": "asc"}
-          ]
-        }
-      }
-    },
-
-    {
-      "api/voter/update": {
-        "method": "POST",
-        "handler": "Update",
-        "args": [
-          {"voter_email": "string"},
-          {"voter_phone": "string"},
-          {"modified_at": "timestamp"},
-          {"modified_by": "string"},
-          {"keys": [
-            {"voter_id": "int", "required":  true}
-          ]}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "voter"
-        }
-      }
-    },
-
-    {
-      "api/voter/delete": {
-        "method": "POST",
-        "handler": "Delete",
-        "args": [
-          {"voter_id": "int", "required": true}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "name": "voter"
-        }
-      }
-    },
-
-    {
-      "api/translate": {
-        "method": "POST",
-        "handler": "TranslateText",
-        "args": [
-          {"text": "string", "required": true},
-          {"targetLang": "string", "required": true}
-        ]
-      }
-    },
-
-    {
-      "api/translate/screen": {
-        "method": "POST",
-        "handler": "TranslateScreen"
-      }
-    },
-
-    {
-      "api/translate/language/supported": {
-        "method": "GET",
-        "handler": "TranslationSupportedLanguages"
       }
     }
 

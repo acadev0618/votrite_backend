@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"../managers/database"
@@ -87,13 +88,13 @@ func (t *MethodInterface) Create(w http.ResponseWriter, args map[string]interfac
 	lastInsertedId, err = database.Create(schema, dataSource, args)
 
 	if err != nil {
-		if _, e := fmt.Fprintf(w, "{\"error\": \"%v\"}", err); e != nil {
+		if _, e := fmt.Fprintf(w, "{\"state\": \"error\", \"message\": \"%s\"}", strings.ReplaceAll(err.Error(), "\"", "")); e != nil {
 			log.Fatal(e)
 		}
 		return
 	}
-
-	result := fmt.Sprintf("{\"inserted\": \"%d\"}", lastInsertedId)
+	//result := fmt.Sprintf("{\"inserted\": \"%d\"}", lastInsertedId)
+	result := fmt.Sprintf("{\"state\": \"success\",  \"message\": \"%d\"}", lastInsertedId)
 	if _, err := fmt.Fprintf(w, result); err != nil {
 		log.Fatal(err)
 	}
@@ -122,13 +123,13 @@ func (t *MethodInterface) Update(w http.ResponseWriter, args map[string]interfac
 	rowsAffected, err = database.Update(schema, dataSource, args)
 
 	if err != nil {
-		if _, e := fmt.Fprintf(w, "{\"error\": \"%v\"}", err); e != nil {
+		if _, e := fmt.Fprintf(w, "{\"state\": \"error\", \"message\": \"%s\"}", strings.ReplaceAll(err.Error(), "\"", "")); e != nil {
 			log.Fatal(e)
 		}
 		return
 	}
 
-	result := fmt.Sprintf("{\"updated\": \"%d\"}", rowsAffected)
+	result := fmt.Sprintf("{\"state\": \"success\",  \"message\": \"%d\"}", rowsAffected)
 	if _, err := fmt.Fprintf(w, result); err != nil {
 		log.Fatal(err)
 	}
@@ -151,13 +152,13 @@ func (t *MethodInterface) Delete(w http.ResponseWriter, args map[string]interfac
 	rowsAffected, err = database.Delete(schema, dataSource, args)
 
 	if err != nil {
-		if _, e := fmt.Fprintf(w, "{\"error\": \"%v\"}", err); e != nil {
+		if _, e := fmt.Fprintf(w, "{\"state\": \"error\", \"message\": \"%s\"}", strings.ReplaceAll(err.Error(), "\"", "")); e != nil {
 			log.Fatal(e)
 		}
 		return
 	}
 
-	result := fmt.Sprintf("{\"deleted\": \"%d\"}", rowsAffected)
+	result := fmt.Sprintf("{\"state\": \"success\",  \"message\": \"%d\"}", rowsAffected)
 	if _, err := fmt.Fprintf(w, result); err != nil {
 		log.Fatal(err)
 	}

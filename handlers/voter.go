@@ -1,13 +1,14 @@
 package handlers
 
 import (
-	"../managers/database"
 	"fmt"
-	"github.com/google/uuid"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"../managers/database"
+	"github.com/google/uuid"
 )
 
 func (t *MethodInterface) CreateVoter(w http.ResponseWriter, args map[string]interface{}) (lastInsertedId int64, err error) {
@@ -48,10 +49,9 @@ func (t *MethodInterface) CreateVoter(w http.ResponseWriter, args map[string]int
 
 	// Create pin code
 	pArgs = make(map[string]interface{})
-	pArgs["election_id"] = args["election_id"]
 	pArgs["ballot_id"] = args["ballot_id"]
 	pArgs["is_active"] = true
-	pArgs["expiration_time"] = "2019-12-31T23:59:59"
+	pArgs["expiration_time"] = "2020-12-31T23:59:59"
 	pArgs["created_at"] = ts
 	pArgs["pincode_len"] = uint(10)
 	pArgs["voter_id"] = lastInsertedId
@@ -68,11 +68,11 @@ func (t *MethodInterface) CreateVoter(w http.ResponseWriter, args map[string]int
 		return
 	}
 
-	message := fmt.Sprintf("Welcome to online voting by Votrite\n\nThank you for your registration!\nYou successfully registered for %s. Your PIN code for the election is %s", args["election_name"].(string), pin)
+	message := fmt.Sprintf("Welcome to online voting by Votrite\n\nThank you for your registration!\nYou successfully registered for %s. Your PIN code for the election is %s", args["ballot_name"].(string), pin)
 
 	if args["pin_delivery"].(string) == "email" {
 		err = t.SendMail(args["voter_email"].(string),
-			fmt.Sprintf("Registration for %s", args["election_name"].(string)),
+			fmt.Sprintf("Registration for %s", args["ballot_name"].(string)),
 			message)
 	}
 	if args["pin_delivery"].(string) == "text" {

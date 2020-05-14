@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"log"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 func (t *MethodInterface) NewSession(w http.ResponseWriter, args map[string]interface{}) (result string, err error) {
@@ -14,5 +15,3 @@ func (t *MethodInterface) NewSession(w http.ResponseWriter, args map[string]inte
 	}
 	return
 }
-
-

@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"../managers/database"
 	"fmt"
 	"log"
 	"net/http"
 	"net/smtp"
 	"os"
+
+	"../managers/database"
 )
 
 func (t *MethodInterface) VerifyUserEmail(w http.ResponseWriter, args map[string]interface{}) (valid bool) {

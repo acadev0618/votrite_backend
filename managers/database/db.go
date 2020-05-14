@@ -332,8 +332,16 @@ func Update(schema string, dataSource string, args ...interface{}) (rowsAffected
 				} else {
 					if values == "" {
 						values = fmt.Sprintf("%s=$%d", key, i)
+						if key == "user_password" {
+							values = fmt.Sprintf("%s=crypt($%d, gen_salt('bf'))", key, i)
+						}
 					} else {
-						values += fmt.Sprintf(", %s=$%d", key, i)
+						var temp string
+						temp = fmt.Sprintf(", %s=$%d", key, i)
+						if key == "user_password" {
+							temp = fmt.Sprintf(", %s=crypt($%d, gen_salt('bf'))", key, i)
+						}
+						values += temp
 					}
 					qArgs[i-1] = val
 					i++

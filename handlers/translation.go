@@ -1,15 +1,16 @@
 package handlers
 
 import (
-	"cloud.google.com/go/translate"
 	"context"
 	"encoding/json"
 	"fmt"
-	"golang.org/x/text/language"
-	"google.golang.org/api/option"
 	"log"
 	"net/http"
 	"os"
+
+	"cloud.google.com/go/translate"
+	"golang.org/x/text/language"
+	"google.golang.org/api/option"
 )
 
 func (t *MethodInterface) TranslateText(w http.ResponseWriter, args map[string]interface{}) (string, error) {
