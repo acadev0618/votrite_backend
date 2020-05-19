@@ -23,7 +23,7 @@
           {"user_password": "string", "required": true, "encrypted": true}
         ],
         "data-source": {
-          "schema": "admin",
+          "schema": "votrite",
           "name": "user",
           "fields": [
             "user_id",
@@ -64,7 +64,7 @@
           {"user_email": "string"}
         ],
         "data-source": {
-          "schema": "admin",
+          "schema": "votrite",
           "name": "user",
           "order": [
             {"user_id": "asc"}
@@ -85,7 +85,7 @@
           {"user_avatar": "string"}
         ],
         "data-source": {
-          "schema": "admin",
+          "schema": "votrite",
           "name": "user"
         }
       }
@@ -106,7 +106,7 @@
           ]}
         ],
         "data-source": {
-          "schema": "admin",
+          "schema": "votrite",
           "name": "user"
         }
       }
@@ -120,7 +120,7 @@
           {"user_id": "int", "required": true}
         ],
         "data-source": {
-          "schema": "admin",
+          "schema": "votrite",
           "name": "user"
         }
       }
@@ -206,6 +206,132 @@
       }
     },
 
+    {
+      "api/ballot/country": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"ballot_id": "int"},
+          {"state_id": "int"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "ballot_country_view"
+        }
+      }
+    },
+
+    {
+      "api/ballot/country/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"state_id": "int", "required": true},
+          {"country_id": "int", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "ballot_country"
+        }
+      }
+    },
+
+    {
+      "api/ballot/country/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"state_id": "int", "required": true},
+          {"country_id": "int", "required": true},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "ballot_country"
+        }
+      }
+    },
+
+    {
+      "api/ballot/country/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"ballot_country_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "ballot_country"
+        }
+      }
+    },
+
+    {
+      "api/ballot/language": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"ballot_id": "int"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "ballot_language_view"
+        }
+      }
+    },
+
+    {
+      "api/ballot/language/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"lang_id": "int", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "ballot_language"
+        }
+      }
+    },
+
+    {
+      "api/ballot/language/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"lang_id": "int", "required": true},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "ballot_language"
+        }
+      }
+    },
+
+    {
+      "api/ballot/language/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"ballot_lang_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "ballot_language"
+        }
+      }
+    },
     
     {
       "api/race": {
@@ -301,6 +427,85 @@
           "order": [
             {"candidate_id": "asc"}
           ]
+        }
+      }
+    },
+
+
+
+
+    {
+      "api/proposition": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"ballot_id": "int"},
+          {"proposition_id": "int"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "proposition",
+          "order": [
+            {"proposition_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/proposition/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"prop_name": "string", "required": true},
+          {"prop_title": "string"},
+          {"prop_text": "string"},
+          {"prop_answer_type": "string"},
+          {"prop_lang_id": "int"},
+          {"prop_location_id":"int"},
+          {"prop_type":"string"},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "proposition"
+        }
+      }
+    },
+
+    {
+      "api/proposition/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"prop_name": "string"},
+          {"prop_title": "string"},
+          {"prop_text": "string"},
+          {"prop_answer_type": "int"},
+          {"prop_lang_id": "int"},
+          {"prop_location_id":"int"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "proposition"
+        }
+      }
+    },
+
+    {
+      "api/proposition/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"proposition_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "proposition"
         }
       }
     },
@@ -436,6 +641,130 @@
         "data-source": {
           "schema": "votrite",
           "name": "language"
+        }
+      }
+    },
+
+    {
+      "api/location/state/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"state_code": "string", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "location_state"
+        }
+      }
+    },
+
+    {
+      "api/location/state": {
+        "method": "GET",
+        "handler": "Read",
+        "data-source": {
+          "schema": "votrite",
+          "name": "location_state",
+          "order": [
+            {"state_code": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/location/state/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"state_code": "string"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "location_state"
+        }
+      }
+    },
+    
+    {
+      "api/location/state/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"state_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "location_state"
+        }
+      }
+    },
+
+    {
+      "api/location/country/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"state_id": "int", "required": true},
+          {"country_name": "string", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "location_country"
+        }
+      }
+    },
+
+    {
+      "api/location/country": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"state_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "location_country",
+          "order": [
+            {"country_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/location/country/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"country_name": "string"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "location_country"
+        }
+      }
+    },
+    
+    {
+      "api/location/country/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"country_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "location_country"
         }
       }
     },
@@ -629,9 +958,6 @@
       }
     },
 
-
-
-
     {
       "api/counter/candidate/create": {
         "method": "POST",
@@ -716,6 +1042,48 @@
         }
       }
     },
+
+    {
+      "api/result/candidate": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"ballot_id": "int", "required":  true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "result_candidate"
+        }
+      }
+    },
+    {
+      "api/result/proposition": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"ballot_id": "int", "required":  true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "result_proposition"
+        }
+      }
+    },
+
+    {
+      "api/result/all": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"ballot_id": "int"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "result_all"
+        }
+      }
+    },
+
 
     {
       "api/election/results/candidate": {
