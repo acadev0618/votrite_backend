@@ -332,6 +332,70 @@
         }
       }
     },
+
+    {
+      "api/ballot/party": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"ballot_id": "int"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "party"
+        }
+      }
+    },
+
+    {
+      "api/ballot/party/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"party_name": "string", "required": true},
+          {"party_logo": "string"},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "party"
+        }
+      }
+    },
+
+    {
+      "api/ballot/party/update": {
+        "method": "POST",
+        "handler": "Update",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"party_name": "string", "required": true},
+          {"party_logo": "string"},
+          {"modified_at": "timestamp"},
+          {"modified_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "party"
+        }
+      }
+    },
+
+    {
+      "api/ballot/party/delete": {
+        "method": "POST",
+        "handler": "Delete",
+        "args": [
+          {"party_id": "int", "required": true}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "party"
+        }
+      }
+    },
     
     {
       "api/race": {
