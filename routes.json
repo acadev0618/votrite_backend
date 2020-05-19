@@ -802,6 +802,10 @@
       "api/candidate": {
         "method": "GET",
         "handler": "Read",
+        "args": [
+          {"ballot_id": "int"},
+          {"race_id": "int"}
+        ],
         "data-source": {
           "schema": "votrite",
           "name": "candidate",
