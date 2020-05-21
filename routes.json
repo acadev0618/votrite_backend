@@ -81,7 +81,7 @@
           {"user_name": "string", "required":  true},
           {"user_email": "string", "required":  true},
           {"display_name": "string"},
-          {"user_password": "string", "required":  true, "encrypted": true},
+          {"user_password": "string", "required":  true},
           {"user_avatar": "string"}
         ],
         "data-source": {
@@ -96,7 +96,7 @@
         "method": "POST",
         "handler": "Update",
         "args": [
-          {"user_password": "string", "encrypted": true},
+          {"user_password": "string"},
           {"user_name": "string"},
           {"user_email": "string"},
           {"display_name": "string"},
@@ -132,7 +132,9 @@
         "handler": "Read",
         "args": [
           {"ballot_id": "int"},
-          {"election": "string"}
+          {"election": "string"},
+          {"offset": "int"},
+          {"limit": "int"}
         ],
         "data-source": {
           "schema": "votrite",
@@ -170,12 +172,11 @@
         "method": "POST",
         "handler": "Update",
         "args": [
-          {"client": "string", "required": true},
-          {"election": "string", "required": true},
-          {"address": "string", "required": true},
+          {"client": "string"},
+          {"election": "string"},
+          {"address": "string"},
           {"board": "string"},
-          {"start_date": "timestamp", "required": true},
-          {"end_date": "timestamp", "required": true},
+          {"is_delete":"string"},
           {"modified_at": "timestamp"},
           {"modified_by": "string"},
           {"keys": [
@@ -192,12 +193,9 @@
     {
       "api/ballot/delete": {
         "method": "POST",
-        "handler": "Update",
+        "handler": "Delete",
         "args": [
-          {"is_delete": "boolean", "required": true},
-          {"keys": [
-            {"ballot_id": "int", "required":  true}
-          ]}
+           {"ballot_id": "int", "required":  true}
         ],
         "data-source": {
           "schema": "votrite",
@@ -872,7 +870,7 @@
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "candidate",
+          "name": "candidate_view",
           "order": [
             {"candidate_id": "asc"}
           ]

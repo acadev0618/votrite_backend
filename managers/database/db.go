@@ -36,6 +36,194 @@ func ResultToJSON(result map[string][]map[string]interface{}) (newResult string,
 	return
 }
 
+func ReadSpecial(schema string, dataSource string, columns []string, order string, args ...interface{}) (result map[string][]map[string]interface{}, err error) {
+	var target string
+	if len(columns) > 0 {
+		for _, v := range columns {
+			if target == "" {
+				target = v
+			} else {
+				target += fmt.Sprintf(", %s", v)
+			}
+		}
+	} else {
+		target = "*"
+	}
+
+	query := fmt.Sprintf("SELECT %s FROM %s.%s", target, schema, dataSource)
+
+	var whereClause string
+	var offsetStr string
+	var qArgs []interface{}
+	//var tableName string
+	//var joinClause string
+	//aliases := []string{"a", "b", "c", "d", "e", "j"}
+
+	for _, v := range args {
+		switch v.(type) {
+		case map[string]interface{}:
+			if dataSource == "ballot" {
+				qArgs = make([]interface{}, len(v.(map[string]interface{}))-2)
+			} else {
+				qArgs = make([]interface{}, len(v.(map[string]interface{})))
+			}
+			var i = 1
+			//var a = 0
+			offsetStr = ""
+			for key, val := range v.(map[string]interface{}) {
+				if key == "data-source" {
+					_, ok := v.(map[string]interface{})["dependencies"]
+					if ok {
+						for k, v := range val.(map[string]interface{}) {
+							if k == "name" {
+								log.Println(k, v)
+							}
+						}
+					}
+				} else {
+					if key == "offset" {
+						offsetStr += fmt.Sprintf(" OFFSET %s", val.(string))
+						i++
+						continue
+					}
+					if key == "limit" {
+						offsetStr += fmt.Sprintf(" LIMIT %s", val.(string))
+						i++
+						continue
+					}
+
+					if whereClause == "" {
+						switch val.(type) {
+						case string:
+							if strings.Contains(val.(string), "encrypted:") {
+								whereClause = fmt.Sprintf("WHERE %s=crypt($%d, %s)", key, i, key)
+								val = val.(string)[10:]
+							} else {
+								whereClause = fmt.Sprintf("WHERE %s=$%d", key, i)
+							}
+						default:
+							whereClause = fmt.Sprintf("WHERE %s=$%d", key, i)
+						}
+					} else {
+						switch val.(type) {
+						case string:
+							if strings.Contains(val.(string), "encrypted:") {
+								whereClause += fmt.Sprintf(" AND %s=crypt($%d, %s)", key, i, key)
+								val = val.(string)[10:]
+							} else {
+								whereClause += fmt.Sprintf(" AND %s=$%d", key, i)
+							}
+						default:
+							whereClause += fmt.Sprintf(" AND %s=$%d", key, i)
+						}
+					}
+				}
+				qArgs[i-1] = val
+				i++
+			}
+			break
+		default:
+			break
+		}
+	}
+
+	if query == "" {
+		return
+	}
+
+	if whereClause != "" {
+		query = fmt.Sprintf("%s %s", query, whereClause)
+	}
+	if order != "" {
+		query = fmt.Sprintf("%s ORDER BY %s", query, order)
+	}
+
+	if offsetStr != "" {
+		log.Println(offsetStr)
+		query = fmt.Sprintf("%s %s", query, offsetStr)
+	}
+
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = db.Ping()
+	if err != nil {
+		if err := db.Close(); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+
+	var rows *sql.Rows
+	log.Println(query)
+	log.Println(qArgs)
+	rows, err = db.Query(query, qArgs...)
+
+	if err != nil {
+		if err := db.Close(); err != nil {
+			log.Fatal(err)
+		}
+		return nil, err
+	}
+
+	i := 0
+	cols, _ := rows.Columns()
+	count := len(cols)
+	vals := make([]interface{}, count)
+	valuesPtr := make([]interface{}, count)
+	result = make(map[string][]map[string]interface{})
+
+	for c := range cols {
+		valuesPtr[c] = &vals[c]
+	}
+
+	for rows.Next() {
+		err := rows.Scan(valuesPtr...)
+
+		if err != nil {
+			if err := rows.Close(); err != nil {
+				log.Fatal(err)
+			}
+			if err := db.Close(); err != nil {
+				log.Fatal(err)
+			}
+			return nil, err
+		}
+
+		rm := make(map[string]interface{})
+
+		for j, col := range cols {
+
+			var v interface{}
+
+			val := vals[j]
+
+			b, ok := val.([]byte)
+
+			if ok {
+				v = string(b)
+			} else {
+				v = val
+			}
+
+			rm[col] = v
+		}
+
+		result["data"] = append(result["data"], rm)
+		i++
+	}
+	if err := rows.Close(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := db.Close(); err != nil {
+		log.Fatal(err)
+	}
+	return
+}
+
 func Read(schema string, dataSource string, columns []string, order string, args ...interface{}) (result map[string][]map[string]interface{}, err error) {
 	var target string
 	if len(columns) > 0 {

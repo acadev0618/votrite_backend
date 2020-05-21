@@ -40,7 +40,7 @@ func checkEnv() {
 
 func main() {
 	//checkEnv()
-	os.Setenv("VR_API_HOST", "10.10.10.143")
+	os.Setenv("VR_API_HOST", "0.0.0.0")
 	os.Setenv("VR_API_PORT", "9191")
 	os.Setenv("VR_DB_HOST", "localhost")
 	os.Setenv("VR_DB_PORT", "5432")
