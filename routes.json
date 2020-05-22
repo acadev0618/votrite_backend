@@ -205,7 +205,7 @@
     },
 
     {
-      "api/ballot/country": {
+      "api/ballot/county": {
         "method": "GET",
         "handler": "Read",
         "args": [
@@ -214,57 +214,59 @@
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "ballot_country_view"
+          "name": "ballot_county_view"
         }
       }
     },
 
     {
-      "api/ballot/country/create": {
+      "api/ballot/county/create": {
         "method": "POST",
         "handler": "Create",
         "args": [
           {"ballot_id": "int", "required": true},
           {"state_id": "int", "required": true},
-          {"country_id": "int", "required": true},
+          {"county_id": "int", "required": true},
           {"created_at": "timestamp"},
           {"created_by": "string"}
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "ballot_country"
+          "name": "ballot_county"
         }
       }
     },
 
     {
-      "api/ballot/country/update": {
+      "api/ballot/county/update": {
         "method": "POST",
         "handler": "Update",
         "args": [
           {"ballot_id": "int", "required": true},
           {"state_id": "int", "required": true},
-          {"country_id": "int", "required": true},
+          {"county_id": "int", "required": true},
           {"modified_at": "timestamp"},
           {"modified_by": "string"}
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "ballot_country"
+          "name": "ballot_county"
         }
       }
     },
 
     {
-      "api/ballot/country/delete": {
+      "api/ballot/county/delete": {
         "method": "POST",
         "handler": "Delete",
         "args": [
-          {"ballot_country_id": "int", "required": true}
+          {"ballot_id": "int", "required": true},
+          {"state_id": "int", "required": true},
+          {"county_id": "int", "required": true}
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "ballot_country"
+          "name": "ballot_county"
         }
       }
     },
@@ -322,7 +324,8 @@
         "method": "POST",
         "handler": "Delete",
         "args": [
-          {"ballot_lang_id": "int", "required": true}
+          {"ballot_id": "int", "required": true},
+          {"lang_id": "int", "required": true}
         ],
         "data-source": {
           "schema": "votrite",
@@ -768,24 +771,24 @@
     },
 
     {
-      "api/location/country/create": {
+      "api/location/county/create": {
         "method": "POST",
         "handler": "Create",
         "args": [
           {"state_id": "int", "required": true},
-          {"country_name": "string", "required": true},
+          {"county_name": "string", "required": true},
           {"created_at": "timestamp"},
           {"created_by": "string"}
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "location_country"
+          "name": "location_county"
         }
       }
     },
 
     {
-      "api/location/country": {
+      "api/location/county": {
         "method": "GET",
         "handler": "Read",
         "args": [
@@ -793,40 +796,40 @@
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "location_country",
+          "name": "location_county",
           "order": [
-            {"country_id": "asc"}
+            {"county_id": "asc"}
           ]
         }
       }
     },
 
     {
-      "api/location/country/update": {
+      "api/location/county/update": {
         "method": "POST",
         "handler": "Update",
         "args": [
-          {"country_name": "string"},
+          {"county_name": "string"},
           {"modified_at": "timestamp"},
           {"modified_by": "string"}
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "location_country"
+          "name": "location_county"
         }
       }
     },
     
     {
-      "api/location/country/delete": {
+      "api/location/county/delete": {
         "method": "POST",
         "handler": "Delete",
         "args": [
-          {"country_id": "int", "required": true}
+          {"county_id": "int", "required": true}
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "location_country"
+          "name": "location_county"
         }
       }
     },

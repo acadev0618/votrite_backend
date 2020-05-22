@@ -45,6 +45,11 @@ func (t *MethodInterface) Read(w http.ResponseWriter, args map[string]interface{
 
 	rm, err := database.Read(schema, dataSource, fields, order, args)
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
 	if err != nil {
 		if _, e := fmt.Fprintf(w, "{\"error\": \"%v\"}", err); e != nil {
 			log.Fatal(e)
@@ -121,6 +126,10 @@ func (t *MethodInterface) Update(w http.ResponseWriter, args map[string]interfac
 		}
 	}
 	rowsAffected, err = database.Update(schema, dataSource, args)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 
 	if err != nil {
 		if _, e := fmt.Fprintf(w, "{\"state\": \"error\", \"message\": \"%s\"}", strings.ReplaceAll(err.Error(), "\"", "")); e != nil {
