@@ -583,8 +583,27 @@
           {"ballot_id": "int", "required": true},
           {"is_active": "boolean"},
           {"expiration_time": "timestamp"},
+          {"pin": "string"},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "pincode"
+        }
+      }
+    },
+
+    {
+      "api/pincode/multicreate": {
+        "method": "POST",
+        "handler": "CreatePinCodeMulti",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"is_active": "boolean"},
+          {"expiration_time": "timestamp"},
           {"pincode_len": "int"},
-          {"voter_id": "int"},
+          {"pincode_count": "int"},
           {"created_at": "timestamp"},
           {"created_by": "string"}
         ],
