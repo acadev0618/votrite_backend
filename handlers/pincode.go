@@ -155,15 +155,14 @@ func (t *MethodInterface) CreatePinCodeMulti(w http.ResponseWriter, args map[str
 
 	log.Println(pinCount)
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers",
-		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-
 	for pinCount > 0 {
 		args["pin"] = randSeq(pinLen)
 		pinCount--
 		lastInsertedId, err := database.Create(schema, dataSource, args)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers",
+			"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 		log.Println(args)
 
 		if err != nil {
