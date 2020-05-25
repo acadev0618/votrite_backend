@@ -91,7 +91,10 @@ func (t *MethodInterface) Create(w http.ResponseWriter, args map[string]interfac
 		}
 	}
 	lastInsertedId, err = database.Create(schema, dataSource, args)
-
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 	if err != nil {
 		if _, e := fmt.Fprintf(w, "{\"state\": \"error\", \"message\": \"%s\"}", strings.ReplaceAll(err.Error(), "\"", "")); e != nil {
 			log.Fatal(e)
@@ -159,6 +162,10 @@ func (t *MethodInterface) Delete(w http.ResponseWriter, args map[string]interfac
 	}
 
 	rowsAffected, err = database.Delete(schema, dataSource, args)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 
 	if err != nil {
 		if _, e := fmt.Fprintf(w, "{\"state\": \"error\", \"message\": \"%s\"}", strings.ReplaceAll(err.Error(), "\"", "")); e != nil {
