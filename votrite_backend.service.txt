@@ -1,0 +1,29 @@
+[Unit]
+Description=votrite backend api
+ConditionPathExists=/home/ubuntu/votrite_backend/votrite_backend
+After=network.target
+ 
+[Service]
+Type=simple
+User=root
+Group=root
+LimitNOFILE=1024
+
+Restart=on-failure
+RestartSec=10
+startLimitIntervalSec=60
+
+WorkingDirectory=/home/ubuntu/votrite_backend
+ExecStart=/home/ubuntu/votrite_backend/votrite_backend
+
+# make sure log directory exists and owned by syslog
+PermissionsStartOnly=true
+ExecStartPre=/bin/mkdir -p /var/log/votrite_backend
+ExecStartPre=/bin/chown syslog:adm /var/log/votrite_backend
+ExecStartPre=/bin/chmod 755 /var/log/votrite_backend
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=votrite_backend
+ 
+[Install]
+WantedBy=multi-user.target
