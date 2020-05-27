@@ -1047,6 +1047,73 @@
     },
 
     {
+      "api/counter/party/create": {
+        "method": "POST",
+        "handler": "Create",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"race_id": "int", "required": true},
+          {"party_id": "int", "required": true},
+          {"pincode": "string", "required": true},
+          {"created_at": "timestamp"},
+          {"created_by": "string"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "party_counter"
+        }
+      }
+    },
+
+    {
+      "api/counter/party": {
+        "method": "GET",
+        "handler": "Read",
+        "args": [
+          {"ballot_id": "int", "required":  true},
+          {"race_id": "int"},
+          {"party_id": "int"}
+        ],
+        "data-source": {
+          "schema": "votrite",
+          "name": "party_counter",
+          "order": [
+            {"ballot_id": "asc"}
+          ]
+        }
+      }
+    },
+
+    {
+      "api/race/mixin": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"race_id": "int", "required": true},
+          {"pincode": "string", "required": true}
+        ],
+        "data-source": {
+          "query": "select * from (select ballot_id, race_id, pincode from votrite.candidate_counter union select ballot_id, race_id, pincode from votrite.party_counter) as aa where ballot_id = $1 and race_id = $2 and pincode like $3"
+        }
+      }
+    },
+
+    {
+      "api/ballot/mixin": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"election_id": "int"},
+          {"ballot_id": "int"}
+        ],
+        "data-source": {
+          "query": "SELECT e.election_id, e.title, b.ballot_id, b.ballot_location FROM voting.election e INNER JOIN ballot b ON e.election_id=b.election_id WHERE e.election_id=$1 AND b.ballot_id=$2"
+        }
+      }
+    },
+
+    {
       "api/counter/candidate/create": {
         "method": "POST",
         "handler": "Create",
@@ -1054,6 +1121,7 @@
           {"ballot_id": "int", "required": true},
           {"race_id": "int", "required": true},
           {"candidate_id": "int", "required": true},
+          {"pincode": "string", "required": true},
           {"cast_value": "string"},
           {"created_at": "timestamp"},
           {"created_by": "string"}
@@ -1085,48 +1153,54 @@
     },
 
     {
-      "api/counter/cast/create": {
+      "api/counter/proposition/create": {
         "method": "POST",
         "handler": "Create",
         "args": [
-          {"election_id": "int", "required": true},
           {"ballot_id": "int", "required": true},
-          {"session_id": "string", "required": true},
+          {"race_id": "int", "required": true},
+          {"proposition_id": "int", "required": true},
+          {"pincode": "string", "required": true},
           {"created_at": "timestamp"},
           {"created_by": "string"}
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "cast_counter"
+          "name": "proposition_counter"
         }
       }
     },
 
     {
-      "api/counter/cast": {
+      "api/counter/proposition": {
         "method": "GET",
         "handler": "Read",
         "args": [
-          {"election_id": "int", "required":  true},
-          {"ballot_id": "int", "required":  true}
+          {"ballot_id": "int", "required":  true},
+          {"race_id": "int"},
+          {"proposition_id": "int"}
         ],
         "data-source": {
           "schema": "votrite",
-          "name": "cast_counter",
+          "name": "proposition_counter",
           "order": [
-            {"election_id": "asc"}
+            {"ballot_id": "asc"}
           ]
         }
       }
     },
 
+
     {
-      "api/counter/cast/count": {
+      "api/result/party": {
         "method": "GET",
-        "handler": "Mixin",
+        "handler": "Read",
+        "args": [
+          {"ballot_id": "int", "required":  true}
+        ],
         "data-source": {
           "schema": "votrite",
-          "query": "select count(*) as \"cast_count\" from voting.cast_counter"
+          "name": "result_party"
         }
       }
     },
@@ -1144,6 +1218,7 @@
         }
       }
     },
+
     {
       "api/result/proposition": {
         "method": "GET",
@@ -1168,63 +1243,6 @@
         "data-source": {
           "schema": "votrite",
           "name": "result_all"
-        }
-      }
-    },
-
-
-    {
-      "api/election/results/candidate": {
-        "method": "POST",
-        "handler": "Mixin",
-        "args": [
-          {"election_id": "int", "required":  true},
-          {"ballot_id": "int", "required":  true}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "query": "select c.candidate_id,\n       c.first_name,\n       c.last_name, c.photo,\n       count(cc.session_id) as \"cast_counter\",\n       sum(cc.cast_value) as \"cast_value\"\nfrom voting.candidate c\ninner join voting.candidate_counter cc on c.candidate_id=cc.candidate_id\nwhere cc.election_id=$1 and cc.ballot_id=$2\ngroup by c.candidate_id, c.first_name, c.last_name\norder by \"cast_value\" desc"
-        }
-      }
-    },
-
-    {
-      "api/election/results/proposition": {
-        "method": "POST",
-        "handler": "Mixin",
-        "args": [
-          {"election_id": "int", "required":  true},
-          {"ballot_id": "int", "required":  true}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "query": "select p.proposition_id,\n       p.proposition_name,\n       case when pc.cast_value = '' then 'No selection' else pc.cast_value end,\n       count(pc.session_id) as \"cast_counter\"\nfrom voting.proposition p\ninner join voting.proposition_counter pc on p.proposition_id=pc.proposition_id\nwhere pc.election_id=3 and pc.ballot_id=2\ngroup by p.proposition_id, p.section_text, pc.cast_value\norder by p.proposition_id"
-        }
-      }
-    },
-
-    {
-      "api/election/results": {
-        "method": "POST",
-        "handler": "Mixin",
-        "args": [
-          {"election_id": "int", "required":  true},
-          {"ballot_id": "int", "required":  true}
-        ],
-        "data-source": {
-          "schema": "votrite",
-          "query": "select e.election_id, e.title, b.ballot_location, con.contest_type, p.proposition_id, p.proposition_name,\ncase when pc.cast_value = '' then 'Not selected' else pc.cast_value end as \"proposition_cast_value\",\ncase when count(pc.cast_counter) is null then 0 else count(pc.cast_counter) end as \"proposition_cast_counter\",\nr.race_id, r.race_name, r.race_title, r.race_subtitle,\nc.candidate_id, c.candidate_id, c.first_name, c.last_name, c.photo,\ncase when sum(cc.cast_value) is null then 0 else sum(case when con.contest_type = 'FR' then cc.cast_value/100 else cc.cast_value end) end as \"candidate_cast_value\",\ncase when count(cc.cast_counter) is null then 0 else count(cc.cast_counter) end as \"candidate_cast_counter\"\nfrom voting.election e\ninner join voting.ballot b on e.election_id = b.election_id\ninner join voting.contest con on b.ballot_id = con.ballot_id\nleft outer join voting.proposition p on con.contest_id = p.contest_id\nleft outer join voting.proposition_counter pc on p.proposition_id = pc.proposition_id\nleft outer join voting.race r on con.contest_id = r.contest_id\nleft outer join voting.race_candidate rc on r.race_id = rc.race_id\nleft outer join voting.candidate c on rc.candidate_id = c.candidate_id\nleft outer join voting.candidate_counter cc on c.candidate_id = cc.candidate_id\nwhere e.election_id=$1 and b.ballot_id=$2\ngroup by e.election_id, e.title, b.ballot_location, con.contest_type, r.race_id, r.race_name, r.race_title,\nr.race_subtitle, p.proposition_id, p.proposition_name,\npc.cast_value, c.candidate_id, c.candidate_id, c.first_name, c.last_name, c.photo\norder by e.election_id, proposition_cast_counter desc, proposition_cast_value desc, candidate_cast_counter desc, candidate_cast_value desc"
-        }
-      }
-    },
-
-    {
-      "api/election/results/all": {
-        "method": "GET",
-        "handler": "Mixin",
-        "data-source": {
-          "schema": "votrite",
-          "query": "select e.election_id, e.title, b.ballot_location, con.contest_type, p.proposition_id, p.proposition_name,\ncase when pc.cast_value = '' then 'Not selected' else pc.cast_value end as \"proposition_cast_value\",\ncase when count(pc.cast_counter) is null then 0 else count(pc.cast_counter) end as \"proposition_cast_counter\",\nr.race_id, r.race_name, r.race_title, r.race_subtitle,\nc.candidate_id, c.first_name, c.last_name, c.photo,\ncase when sum(cc.cast_value) is null then 0 else sum(case when con.contest_type = 'FR' then cc.cast_value/100 else cc.cast_value end) end as \"candidate_cast_value\",\ncase when count(cc.cast_counter) is null then 0 else count(cc.cast_counter) end as \"candidate_cast_counter\"\nfrom voting.election e\ninner join voting.ballot b on e.election_id = b.election_id\ninner join voting.contest con on b.ballot_id = con.ballot_id\nleft outer join voting.proposition p on con.contest_id = p.contest_id\nleft outer join voting.proposition_counter pc on p.proposition_id = pc.proposition_id\nleft outer join voting.race r on con.contest_id = r.contest_id\nleft outer join voting.race_candidate rc on r.race_id = rc.race_id\nleft outer join voting.candidate c on rc.candidate_id = c.candidate_id\nleft outer join voting.candidate_counter cc on c.candidate_id = cc.candidate_id\ngroup by e.election_id, e.title, b.ballot_location, con.contest_type, r.race_id, r.race_name, r.race_title,\nr.race_subtitle, p.proposition_id, p.proposition_name,\npc.cast_value, c.candidate_id, c.first_name, c.last_name, c.photo\norder by e.election_id, proposition_cast_counter desc, proposition_cast_value desc, candidate_cast_counter desc, candidate_cast_value desc"
         }
       }
     },

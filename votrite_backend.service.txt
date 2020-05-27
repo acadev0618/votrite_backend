@@ -11,7 +11,6 @@ LimitNOFILE=1024
 
 Restart=on-failure
 RestartSec=10
-startLimitIntervalSec=60
 
 WorkingDirectory=/home/ubuntu/votrite_backend
 ExecStart=/home/ubuntu/votrite_backend/votrite_backend
