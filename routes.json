@@ -1094,7 +1094,7 @@
           {"pincode": "string", "required": true}
         ],
         "data-source": {
-          "query": "select * from (select ballot_id, race_id, pincode from votrite.candidate_counter union select ballot_id, race_id, pincode from votrite.party_counter) as aa where ballot_id = $1 and race_id = $2 and pincode like $3"
+          "query": "select * from (select ballot_id, race_id, pincode, created_at from votrite.candidate_counter union select ballot_id, race_id, pincode, created_at from votrite.party_counter) as aa where ballot_id = $1 and race_id = $2 and pincode like $3"
         }
       }
     },
