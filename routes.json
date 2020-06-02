@@ -1106,10 +1106,24 @@
           {"pincode": "string", "required": true}
         ],
         "data-source": {
-          "query": "select * from (select ballot_id, race_id, pincode, created_at from votrite.candidate_counter union select ballot_id, race_id, pincode, created_at from votrite.party_counter) as aa where ballot_id = $1 and race_id = $2 and pincode like $3"
+          "query": "select * from votrite.ballot_race_pincode_view where ballot_id = $1 and race_id = $2 and pincode like $3"
         }
       }
     },
+    {
+      "api/race/active": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"pincode": "string", "required": true},
+          {"ballot_id": "int", "required": true}
+        ],
+        "data-source": {
+          "query": "SELECT DISTINCT ra.*, pin.pincode state FROM votrite.race ra LEFT JOIN votrite.ballot_race_pincode_view pin ON pin.ballot_id = ra.ballot_id and pin.race_id = ra.race_id and pin.pincode = $1 WHERE ra.ballot_id = $2"
+        }
+      }
+    },
+
 
     {
       "api/ballot/mixin": {
