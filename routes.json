@@ -134,7 +134,7 @@
           {"election": "string", "required": true}
         ],
         "data-source": {
-          "query": "select ballot_id, election, address, board, start_date, end_date from votrite.ballot where is_delete = false and start_date < current_date and end_date > current_date and election like $1"
+          "query": "select ballot_id, election,client, address, board, is_delete, start_date, end_date from votrite.ballot where is_delete = false and start_date < current_date and end_date > current_date and election like $1"
         }
       }
     },
