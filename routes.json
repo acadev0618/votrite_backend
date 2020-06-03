@@ -1119,7 +1119,7 @@
           {"ballot_id": "int", "required": true}
         ],
         "data-source": {
-          "query": "SELECT DISTINCT ra.*, pin.pincode state FROM votrite.race ra LEFT JOIN votrite.ballot_race_pincode_view pin ON pin.ballot_id = ra.ballot_id and pin.race_id = ra.race_id and pin.pincode = $1 WHERE ra.ballot_id = $2"
+          "query": "SELECT DISTINCT ra.*, pin.pincode state, pin.created_at voted_at  FROM votrite.race ra LEFT JOIN votrite.ballot_race_pincode_view pin ON pin.ballot_id = ra.ballot_id and pin.race_id = ra.race_id and pin.pincode = $1 WHERE ra.ballot_id = $2"
         }
       }
     },
