@@ -188,7 +188,10 @@ func (t *MethodInterface) Mixin(w http.ResponseWriter, args map[string]interface
 	delete(args, "data-source")
 
 	rm, err := database.Mixin(query, args)
-
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 	if err != nil {
 		if _, e := fmt.Fprintf(w, "{\"error\": \"%v\"}", err); e != nil {
 			log.Fatal(e)
