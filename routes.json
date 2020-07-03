@@ -1140,6 +1140,35 @@
     },
 
     {
+      "api/counter/candidate/pincode": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"pincode": "string", "required": true}
+        ],
+        "data-source": {
+          "query": "select aa.*, ca.candidate_name, ra.race_type, ra.race_title from votrite.candidate_counter aa LEFT JOIN votrite.candidate ca on ca.candidate_id = aa.candidate_id LEFT JOIN votrite.race ra on ca.race_id = ra.race_id WHERE aa.ballot_id = $1 and aa.pincode = $2"
+        }
+      }
+    },
+
+    {
+      "api/counter/proposition/pincode": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"ballot_id": "int", "required": true},
+          {"pincode": "string", "required": true}
+        ],
+        "data-source": {
+          "query": "select pc.*, pp.prop_name, pp.prop_title, pp.prop_type, pp.prop_answer_type from votrite.proposition_counter pc LEFT JOIN votrite.proposition pp on pc.proposition_id = pp.proposition_id where pc.ballot_id = $1 and pc.pincode = $2"
+        }
+      }
+    },
+
+
+    {
       "api/counter/candidate/create": {
         "method": "POST",
         "handler": "Create",
@@ -1166,7 +1195,7 @@
         "args": [
           {"ballot_id": "int", "required":  true},
           {"race_id": "int"},
-          {"candidate_id": "int", "required":  true}
+          {"candidate_id": "int"}
         ],
         "data-source": {
           "schema": "votrite",
