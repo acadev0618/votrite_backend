@@ -1245,6 +1245,18 @@
       }
     },
 
+    {
+      "api/result/ballot/counter": {
+        "method": "POST",
+        "handler": "Mixin",
+        "args": [
+          {"ballot_id": "int", "required": true}
+        ],
+        "data-source": {
+          "query": "select aa.ballot_id, count(aa.race_id) from (select cc.ballot_id, cc.race_id, cc.pincode from votrite.candidate_counter cc group by cc.ballot_id, cc.race_id, cc.pincode UNION select cc.ballot_id, cc.race_id, cc.pincode from votrite.party_counter cc group by cc.ballot_id, cc.race_id, cc.pincode UNION select cc.ballot_id, cc.race_id, cc.pincode from votrite.proposition_counter cc group by cc.ballot_id, cc.race_id, cc.pincode) aa   WHERE aa.ballot_id = $1 GROUP BY aa.ballot_id"
+        }
+      }
+    },
 
     {
       "api/result/party": {
