@@ -45,7 +45,7 @@ func main() {
 	os.Setenv("VR_DB_HOST", "localhost")
 	os.Setenv("VR_DB_PORT", "5432")
 	os.Setenv("VR_DB_USR", "postgres")
-	os.Setenv("VR_DB_PWD", "postgres")
+	os.Setenv("VR_DB_PWD", "Koukla2020=")
 	os.Setenv("VR_DB_NAME", "votrite")
 	os.Setenv("GCP_API_KEY", "AIzaSyDSswF9CPPmvoLgx-00fjF4_U3_mBw9iiM")
 
